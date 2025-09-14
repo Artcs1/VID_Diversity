@@ -6,6 +6,37 @@ import torch
 from PIL import Image
 from qwen_vl_utils import process_vision_info
 
+import os
+import glob
+
+def retrieve_video_paths(paths):
+
+    full_video_paths = []
+
+    for path in paths:
+        dirs = glob.glob(path)
+        n_fl = len(dirs)
+        cont = 0
+        individual_files = 0
+        for item_dir in dirs:
+            safe_dir = glob.escape(item_dir)
+            pattern = os.path.join(safe_dir, '*.mp4')
+            files = glob.glob(pattern)
+            files.sort()
+            if files != []:
+                cont+=1
+                tam = len(files)
+                individual_files+=len(files)
+                if tam > 3:
+                    full_video_paths.append(files[1])
+                    full_video_paths.append(files[int(tam//2)])
+                    full_video_paths.append(files[-1])
+                elif tam == 1:
+                    full_video_paths.append(files[0])
+                else:
+                    full_video_paths.append(files[1])
+
+    return full_video_paths
 
 
 def euclidean_distance(p1, p2):
