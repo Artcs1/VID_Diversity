@@ -2,6 +2,7 @@ import os
 import cv2
 import glob
 import shutil
+import numpy as np
 
 paths = ['/gpfs/projects/CascanteBonillaGroup/datasets/walking_tours_2/downloads/*/','/gpfs/projects/CascanteBonillaGroup/datasets/walking_tours_2/single_file_downloads/*/']
 full_video_paths = []
@@ -29,7 +30,7 @@ for path in paths:
             else:
                 full_video_paths.append(files[1])
 
-
+FPS = []
 for f_video in full_video_paths:
 
     print(f_video)
@@ -39,17 +40,18 @@ for f_video in full_video_paths:
     os.makedirs(dest_dir, exist_ok=True)
     shutil.copy2(f_video, dest_dir)
 
-    
-
     cap = cv2.VideoCapture(f_video)
     width  = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
     fps     = int(cap.get(cv2.CAP_PROP_FPS))
     total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
     if fps!=0:
+        print(fps)
+        FPS.append(fps)
         secs = total_frames // fps
         
         folder_name = f_video.split('/')[7]
         city_country_part = folder_name.split(" - ")[0]
         city, country = city_country_part.split("_")
 
+print(np.unique(FPS))
