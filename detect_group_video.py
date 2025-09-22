@@ -45,8 +45,8 @@ def main():
 
     if dataset == 'sekai':
         dataframe = pd.read_csv('sekai-real-walking-hq.csv')
-        map_links = {link[:11]: loc for link, loc in zip(dataframe['videoFile'].values, dataframe['location'].values)}
-        paths = ['/gpfs/projects/CascanteBonillaGroup/datasets/sekai-codebase/dataset_downloading/videos/']
+        map_links = {link[:-4]: loc for link, loc in zip(dataframe['videoFile'].values, dataframe['location'].values)}
+        paths = ['egocentric_videos/sekai_clips']
     else:
         paths = ['egocentric_videos/egocentric_1/*/','egocentric_videos/egocentric_2/*/']
 
@@ -80,8 +80,10 @@ def main():
 
     start_idx = args.start
     end_idx = args.end
+    tam = len(video_paths)
+    print(tam)
 
-    video_paths = video_paths[start_idx:end_idx]
+    video_paths = video_paths[start_idx:min(end_idx,tam)]
 
     for ind, video_path in enumerate(tqdm(video_paths, desc="Processing videos ...")):
 
@@ -113,12 +115,14 @@ def main():
 
             tracker = sv.ByteTrack(track_activation_threshold=0.1)
             if dataset == 'sekai':
-                folder_name = video_path.split('/')[-1][:-4]        
+                folder_name = video_path.split('/')[-1][:-4] 
                 city_country_part = map_links[folder_name].split(",")
                 city, country_real = city_country_part[-2].strip(), city_country_part[-1].strip()
 
                 video_name = video_path.split('/')[-1][:-4]
                 country    = video_name 
+
+                video_metadata['dataset'] = dataset
             else:
                 country = video_path.split('/')[-2].split('_')[0] + '_' + video_path.split('/')[-1].split('_')[1][:-4] 
                 video_name = video_path.split('/')[-2]
@@ -126,6 +130,8 @@ def main():
                 folder_name = video_path.split('/')[-2]
                 city_country_part = folder_name.split(" - ")[0]
                 city, country_real = city_country_part.split("_")
+
+                video_metadata['dataset'] = dataset
 
             parts  = ["Nose", "Left Eye", "Right Eye", "Left Ear", "Right Ear", "Left Shoulder", "Right Shoulder","Left Elbow","Right Elbow","Left Wrist","Right Wrist","Left Hip","Right Hip","Left Knee","Right Knee","Left Ankle","Right Ankle"]
             total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
@@ -153,8 +159,9 @@ def main():
             cap.set(cv2.CAP_PROP_POS_FRAMES, frame_index)
             save = True
         
-            for _ in range(read_frames):
+            for read_i in range(read_frames):
 
+                #print(read_i)
                 ret, frame = cap.read()
             
                 count_frame+=1                

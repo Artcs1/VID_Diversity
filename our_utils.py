@@ -17,7 +17,7 @@ def retrieve_video_paths(paths, dataset):
 
         for path in paths:
             safe_dir = glob.escape(path)
-            pattern = os.path.join(safe_dir, '*.mkv')
+            pattern = os.path.join(safe_dir, '*.mp4')
             files = glob.glob(pattern)
             files.sort()
             if files != []:
